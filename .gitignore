@@ -1,0 +1,5 @@
+.env
+node_modules/
+dist/
+
+# las carpetas deben terminar con /

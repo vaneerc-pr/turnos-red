@@ -1,0 +1,12 @@
+{
+  "name": "turnos-red",
+  "version": "1.0.0",
+  "description": "Proyectos Turnos-Red (Integraciones web)",
+  "license": "ISC",
+  "author": "Vanessa Reyes Clavero",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
