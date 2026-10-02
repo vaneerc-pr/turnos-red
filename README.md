@@ -16,7 +16,7 @@ Proyecto desarrollado para la Actividad 1 del ramo *Integraciones Web*.
 
 ## Requisitos previos
 
-- [NVM](https://github.com/nvm-sh/nvm) para gestionar la versión de Node.js
+- [NVM](https://github.com/nvm-sh/nvm) para gestionar la version de Node.js
 - Node.js **v24.21.0** (definida en `.nvmrc`)
 - npm (se instala junto con Node.js)
 - Git
@@ -26,7 +26,7 @@ Proyecto desarrollado para la Actividad 1 del ramo *Integraciones Web*.
 
 ```bash
 # 1. Clonar el repositorio
-git clone <URL-DEL-REPOSITORIO>
+git clone https://github.com/vaneerc-pr/turnos-red.git
 cd turnos-red
 
 # 2. Usar la version de Node.js del proyecto
@@ -48,21 +48,21 @@ El servidor queda disponible en `http://localhost:3000`.
 
 ## Variables de entorno
 
-| Variable      | Descripcion                                                    | Valor de ejemplo     |
-|---------------|----------------------------------------------------------------|----------------------|
-| `PORT`        | Puerto en el que escucha el servidor                           | `3000`               |
-| `RUTA_TURNOS` | Ruta (relativa a la raiz del proyecto) del archivo de turnos   | `data/turnos.json`   |
+| Variable      | Descripcion                                                  | Valor de ejemplo   |
+|---------------|--------------------------------------------------------------|--------------------|
+| `PORT`        | Puerto en el que escucha el servidor                         | `3000`             |
+| `RUTA_TURNOS` | Ruta (relativa a la raiz del proyecto) del archivo de turnos | `data/turnos.json` |
 
 El archivo `.env` esta excluido del repositorio mediante `.gitignore`. Se debe crear a partir de `.env.example`.
 
 ## Scripts disponibles
 
-| Script           | Comando                    | Descripcion                                                   |
-|------------------|----------------------------|---------------------------------------------------------------|
-| `npm run build`  | `tsc`                      | Compila el codigo TypeScript de `src/` a JavaScript en `dist/` |
-| `npm start`      | `node dist/index.js`       | Ejecuta el servidor compilado                                 |
-| `npm run lint`   | `eslint . --ext .ts`       | Analiza el codigo en busca de errores y malas practicas       |
-| `npm run format` | `prettier --write src/`    | Aplica formato homogeneo al codigo fuente                     |
+| Script           | Comando                 | Descripcion                                                    |
+|------------------|-------------------------|----------------------------------------------------------------|
+| `npm run build`  | `tsc`                   | Compila el codigo TypeScript de `src/` a JavaScript en `dist/` |
+| `npm start`      | `node dist/index.js`    | Ejecuta el servidor compilado                                  |
+| `npm run lint`   | `eslint . --ext .ts`    | Analiza el codigo en busca de errores y malas practicas        |
+| `npm run format` | `prettier --write src/` | Aplica formato homogeneo al codigo fuente                      |
 
 > Cada cambio en `src/` requiere ejecutar `npm run build` antes de `npm start`.
 
@@ -70,58 +70,58 @@ El archivo `.env` esta excluido del repositorio mediante `.gitignore`. Se debe c
 
 ```
 turnos-red/
-├── data/
-│   └── turnos.json           # Datos crudos enviados por las sedes
-├── public/
-│   └── index.html            # Cliente web de prueba (Socket.IO)
-├── src/
-│   ├── controllers/
-│   │   └── turnosController.ts   # Recibe la solicitud y define el codigo HTTP
-│   ├── events/
-│   │   ├── busEventos.ts         # Bus de eventos internos (EventEmitter)
-│   │   └── registroConsola.ts    # Oyente que registra los eventos en consola
-│   ├── models/
-│   │   └── turno.ts              # Interfaces TurnoCrudo y Turno
-│   ├── realtime/
-│   │   └── socket.ts             # Puente entre el bus de eventos y Socket.IO
-│   ├── routes/
-│   │   └── turnosRoutes.ts       # Asocia metodo + ruta con su controlador
-│   ├── services/
-│   │   ├── lectorTurnos.ts       # Lectura asincrona del archivo (fs/promises)
-│   │   ├── normalizador.ts       # Limpieza y validacion de registros
-│   │   └── turnosService.ts      # Logica de negocio y datos en memoria
-│   ├── app.ts                    # Configuracion de Express
-│   └── index.ts                  # Punto de entrada
-├── .env.example
-├── .gitignore
-├── .nvmrc
-├── .prettierrc
-├── eslint.config.mjs
-├── package.json
-├── package-lock.json
-└── tsconfig.json
+|-- data/
+|   |-- turnos.json               # Datos crudos enviados por las sedes
+|-- public/
+|   |-- index.html                # Cliente web de prueba (Socket.IO)
+|-- src/
+|   |-- controllers/
+|   |   |-- turnosController.ts   # Recibe la solicitud y define el codigo HTTP
+|   |-- events/
+|   |   |-- busEventos.ts         # Bus de eventos internos (EventEmitter)
+|   |   |-- registroConsola.ts    # Oyente que registra los eventos en consola
+|   |-- models/
+|   |   |-- turno.ts              # Interfaces TurnoCrudo y Turno
+|   |-- realtime/
+|   |   |-- socket.ts             # Puente entre el bus de eventos y Socket.IO
+|   |-- routes/
+|   |   |-- turnosRoutes.ts       # Asocia metodo + ruta con su controlador
+|   |-- services/
+|   |   |-- lectorTurnos.ts       # Lectura asincrona del archivo (fs/promises)
+|   |   |-- normalizador.ts       # Limpieza y validacion de registros
+|   |   |-- turnosService.ts      # Logica de negocio y datos en memoria
+|   |-- app.ts                    # Configuracion de Express
+|   |-- index.ts                  # Punto de entrada
+|-- .env.example
+|-- .gitignore
+|-- .nvmrc
+|-- .prettierrc
+|-- eslint.config.mjs
+|-- package.json
+|-- package-lock.json
+|-- tsconfig.json
 ```
 
 **Flujo de una solicitud:**
 
 ```
-Cliente HTTP → routes → controllers → services → datos en memoria
-                                          │
-                                          └→ busEventos ─┬→ registro en consola
-                                                         └→ Socket.IO → clientes conectados
+Cliente HTTP -> routes -> controllers -> services -> datos en memoria
+                                            |
+                                            +-> busEventos -+-> registro en consola
+                                                            +-> Socket.IO -> clientes conectados
 ```
 
-Cada capa tiene una sola responsabilidad: las **rutas** dirigen la solicitud, los **controladores** validan la entrada y responden con el codigo HTTP, los **servicios** aplican la lógica y modifican los datos, y los **modelos** definen la forma de los datos.
+Cada capa tiene una sola responsabilidad: las **rutas** dirigen la solicitud, los **controladores** validan la entrada y responden con el codigo HTTP, los **servicios** aplican la logica y modifican los datos, y los **modelos** definen la forma de los datos.
 
 ## Endpoints
 
-| Método | Ruta           | Descripción                 | Códigos             |
-|--------|----------------|-----------------------------|---------------------|
-| GET    | `/turnos`      | Lista todos los turnos      | 200                 |
-| GET    | `/turnos/:id`  | Obtiene un turno por su id  | 200, 400, 404       |
-| POST   | `/turnos`      | Crea un turno               | 201, 400            |
-| PUT    | `/turnos/:id`  | Actualiza un turno          | 200, 400, 404       |
-| DELETE | `/turnos/:id`  | Elimina un turno            | 200, 400, 404       |
+| Metodo | Ruta          | Descripcion                | Codigos       |
+|--------|---------------|----------------------------|---------------|
+| GET    | `/turnos`     | Lista todos los turnos     | 200           |
+| GET    | `/turnos/:id` | Obtiene un turno por su id | 200, 400, 404 |
+| POST   | `/turnos`     | Crea un turno              | 201, 400      |
+| PUT    | `/turnos/:id` | Actualiza un turno         | 200, 400, 404 |
+| DELETE | `/turnos/:id` | Elimina un turno           | 200, 400, 404 |
 
 Ante cualquier error inesperado, el servidor responde **500**.
 
