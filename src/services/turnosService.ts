@@ -1,5 +1,6 @@
 import type { Turno } from "../models/turno.js";
 import { normalizarTurno } from "./normalizador.js";
+import { busEventos } from "../events/busEventos.js";
 
 let turnos: Turno[] = [];
 
@@ -28,6 +29,7 @@ export function crearTurno(datos: unknown): Turno | null {
   const turno = normalizarTurno({ ...datos, id: siguienteId() });
   if (!turno) return null;
   turnos.push(turno);
+  busEventos.emit("turno:creado", turno);
   return turno;
 }
 
@@ -44,6 +46,7 @@ export function actualizarTurno(
   if (!actualizado) return { ok: false, error: "invalido" };
 
   turnos[indice] = actualizado;
+  busEventos.emit("turno:actualizado", actualizado);
   return { ok: true, turno: actualizado };
 }
 
@@ -51,5 +54,7 @@ export function eliminarTurno(id: number): Turno | null {
   const indice = turnos.findIndex((t) => t.id === id);
   if (indice === -1) return null;
   const [eliminado] = turnos.splice(indice, 1);
-  return eliminado ?? null;
+  if (!eliminado) return null;
+  busEventos.emit("turno:eliminado", eliminado);
+  return eliminado;
 }

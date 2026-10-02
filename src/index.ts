@@ -3,6 +3,7 @@ import { app } from "./app.js";
 import { leerTurnosCrudos } from "./services/lectorTurnos.js";
 import { normalizarTurnos } from "./services/normalizador.js";
 import { inicializarTurnos } from "./services/turnosService.js";
+import { registrarEventosEnConsola } from "./events/registroConsola.js";
 
 const ruta = process.env.RUTA_TURNOS;
 const puerto = Number(process.env.PORT ?? 3000);
@@ -18,6 +19,7 @@ console.log(
   `Registros aceptados: ${turnos.length} | rechazados: ${rechazados}`,
 );
 
+registrarEventosEnConsola();
 inicializarTurnos(turnos);
 
 app.listen(puerto, () => {
