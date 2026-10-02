@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { leerTurnosCrudos } from "./services/lectorTurnos.js";
+import { normalizarTurnos } from "./services/normalizador.js";
 
 const ruta = process.env.RUTA_TURNOS;
 
@@ -9,4 +10,9 @@ if (!ruta) {
 }
 
 const crudos = await leerTurnosCrudos(ruta);
-console.log(`Registros leídos: ${crudos.length}`);
+const { turnos, rechazados } = normalizarTurnos(crudos);
+
+console.log(
+  `Registros aceptados: ${turnos.length} | rechazados: ${rechazados}`,
+);
+console.log(turnos);
