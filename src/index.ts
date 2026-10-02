@@ -1,6 +1,12 @@
-const sistema: { nombre: string; estado: string } = {
-  nombre: "TurnosRed",
-  estado: "activo",
-};
+import "dotenv/config";
+import { leerTurnosCrudos } from "./services/lectorTurnos.js";
 
-console.log(`${sistema.nombre}: ${sistema.estado}`);
+const ruta = process.env.RUTA_TURNOS;
+
+if (!ruta) {
+  console.error("Falta la variable RUTA_TURNOS en el archivo .env");
+  process.exit(1);
+}
+
+const crudos = await leerTurnosCrudos(ruta);
+console.log(`Registros leídos: ${crudos.length}`);

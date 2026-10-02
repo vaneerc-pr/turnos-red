@@ -1,0 +1,8 @@
+[
+  { "id": "102", "paciente": "   Carlos Ruiz ", "documento": 31654210, "especialidad": "PEDIATRÍA", "fecha": "14/08/2026", "hora": "10.00", "confirmado": "si" },
+  { "id": "103", "paciente": "ana torres", "documento": "28.555.123", "especialidad": "odontologia", "fecha": "2026-08-15", "hora": "9:30", "confirmado": true },
+  { "id": 104, "paciente": "Lucía Fernández", "documento": "30111222", "especialidad": "Clínica Médica", "fecha": "18/09/2026", "hora": "16:00", "confirmado": "NO", "observaciones": "Trae estudios previos" },
+  { "id": "abc", "paciente": "Pedro Gómez", "documento": 25123456, "especialidad": "Nutrición", "fecha": "20/08/2026", "hora": "11.30", "confirmado": "si" },
+  { "id": "-5", "paciente": "Sofía Díaz", "documento": 27999888, "especialidad": "PEDIATRIA", "fecha": "21/08/2026", "hora": "08.00", "confirmado": "no" },
+  { "id": "107", "paciente": "   ", "documento": 29444555, "especialidad": "nutricion", "fecha": "22/08/2026", "hora": "12.00", "confirmado": "sí" }
+]
