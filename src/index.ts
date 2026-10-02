@@ -1,9 +1,11 @@
 import "dotenv/config";
+import { createServer } from "node:http";
 import { app } from "./app.js";
 import { leerTurnosCrudos } from "./services/lectorTurnos.js";
 import { normalizarTurnos } from "./services/normalizador.js";
 import { inicializarTurnos } from "./services/turnosService.js";
 import { registrarEventosEnConsola } from "./events/registroConsola.js";
+import { iniciarTiempoReal } from "./realtime/socket.js";
 
 const ruta = process.env.RUTA_TURNOS;
 const puerto = Number(process.env.PORT ?? 3000);
@@ -22,6 +24,9 @@ console.log(
 registrarEventosEnConsola();
 inicializarTurnos(turnos);
 
-app.listen(puerto, () => {
+const servidorHttp = createServer(app);
+iniciarTiempoReal(servidorHttp);
+
+servidorHttp.listen(puerto, () => {
   console.log(`Servidor escuchando en http://localhost:${puerto}`);
 });

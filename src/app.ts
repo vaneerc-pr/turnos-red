@@ -8,6 +8,7 @@ import { turnosRouter } from "./routes/turnosRoutes.js";
 export const app = express();
 
 app.use(express.json());
+app.use(express.static("public"));
 app.use("/turnos", turnosRouter);
 
 app.use((_req: Request, res: Response) => {

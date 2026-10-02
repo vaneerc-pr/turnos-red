@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>TurnosRed – Tiempo real</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 2rem; }
+      table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
+      th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; }
+      #estado { font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <h1>TurnosRed – Turnos en tiempo real</h1>
+    <p>Estado: <span id="estado">conectando...</span></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>Paciente</th><th>Especialidad</th>
+          <th>Fecha</th><th>Hora</th><th>Confirmado</th>
+        </tr>
+      </thead>
+      <tbody id="tabla"></tbody>
+    </table>
+
+    <h2>Eventos recibidos</h2>
+    <ul id="eventos"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const turnos = new Map();
+      const tabla = document.getElementById("tabla");
+      const listaEventos = document.getElementById("eventos");
+      const estado = document.getElementById("estado");
+
+      function dibujar() {
+        tabla.innerHTML = "";
+        for (const t of turnos.values()) {
+          const fila = document.createElement("tr");
+          [t.id, t.paciente, t.especialidad, t.fecha, t.hora, t.confirmado ? "Sí" : "No"]
+            .forEach((valor) => {
+              const celda = document.createElement("td");
+              celda.textContent = valor;
+              fila.appendChild(celda);
+            });
+          tabla.appendChild(fila);
+        }
+      }
+
+      function registrar(nombre, turno) {
+        const item = document.createElement("li");
+        item.textContent = `${new Date().toLocaleTimeString()} — ${nombre}: id ${turno.id} (${turno.paciente})`;
+        listaEventos.prepend(item);
+      }
+
+      fetch("/turnos")
+        .then((respuesta) => respuesta.json())
+        .then((lista) => {
+          lista.forEach((t) => turnos.set(t.id, t));
+          dibujar();
+        });
+
+      const socket = io();
+      socket.on("connect", () => { estado.textContent = `conectado (${socket.id})`; });
+      socket.on("disconnect", () => { estado.textContent = "desconectado"; });
+
+      socket.on("turno:nuevo", (t) => { turnos.set(t.id, t); dibujar(); registrar("turno:nuevo", t); });
+      socket.on("turno:actualizado", (t) => { turnos.set(t.id, t); dibujar(); registrar("turno:actualizado", t); });
+      socket.on("turno:eliminado", (t) => { turnos.delete(t.id); dibujar(); registrar("turno:eliminado", t); });
+    </script>
+  </body>
+</html>
+
+
