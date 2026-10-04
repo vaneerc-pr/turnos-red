@@ -1,17 +1,9 @@
 import type { Request, Response } from "express";
 import * as servicio from "../services/turnosService.js";
 import { AppError } from "../errors/AppError.js";
+import { leerId } from "../utils/leerId.js";
 
-// Valida el :id de la URL; si es inválido, lanza 400
-function leerId(req: Request<{ id: string }>): number {
-  const id = Number(req.params.id);
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new AppError(400, "INVALID_ID", "El id debe ser un número entero positivo", [
-      { field: "id", message: `Valor recibido: "${req.params.id}"` },
-    ]);
-  }
-  return id;
-}
+
 
 function turnoNoEncontrado(id: number): AppError {
   return new AppError(404, "NOT_FOUND", `Turno con id ${id} no encontrado`);
