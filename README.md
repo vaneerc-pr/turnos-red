@@ -156,6 +156,7 @@ Los diagramas estan escritos en [Mermaid](https://mermaid.js.org/) dentro de est
 Representa la arquitectura real de la aplicacion. Los datos se mantienen **en memoria**: `data/turnos.json` solo se lee al iniciar el servidor para la carga inicial de los turnos de las sedes, y los medicos iniciales estan definidos en `medicosService`. Ninguna operacion de la API escribe en archivos JSON (ver [Limitaciones conocidas](#limitaciones-conocidas)).
 
 ```mermaid
+%%{init: {"flowchart": {"htmlLabels": false}} }%%
 flowchart TB
     subgraph Clientes
         HTTP["Cliente HTTP<br/>Postman / navegador"]
@@ -191,8 +192,8 @@ flowchart TB
     SERV -->|"lee y modifica"| MEM
     CTRL -->|"respuesta 200 / 201 / 204"| HTTP
     VALIDATE -.->|"ZodError"| ERR
-    CTRL -.->|"AppError o ZodError de filtros"| ERR
-    ERR -->|"error estándar 400 / 404 / 500"| HTTP
+    CTRL -.->|"AppError o ZodError"| ERR
+    ERR -->|"error 400 / 404 / 500"| HTTP
     SERV -->|"turno:creado / actualizado / eliminado"| BUS
     BUS --> LOG
     BUS --> SIO
@@ -222,7 +223,7 @@ sequenceDiagram
     V->>V: safeParse(req.body)
     alt Body inválido
         V->>E: next(ZodError)
-        E-->>C: 400 Bad Request - VALIDATION_ERROR con details por campo
+        E-->>C: 400 Bad Request (VALIDATION_ERROR)
     else Body válido
         V->>CT: next() con req.body limpio (trim, defaults)
         CT->>S: crearTurno(datos)
@@ -233,11 +234,11 @@ sequenceDiagram
             E-->>C: 404 Not Found - MEDICO_NOT_FOUND
         else Médico existe
             S->>M: turnos.push(turno) con id nuevo
-            Note over M: Sin escritura en disco - el turno se pierde al reiniciar
+            Note over M: Sin escritura en disco<br/>se pierde al reiniciar
             S->>B: emit("turno:creado", turno)
             B->>IO: listener de turno:creado
             IO-->>W: io.emit("turno:nuevo", turno)
-            Note over B,IO: emit es síncrono - el evento se envía antes de responder al cliente HTTP
+            Note over B,IO: emit es síncrono<br/>el evento sale antes de la respuesta HTTP
             S-->>CT: ok true, turno
             CT-->>C: 201 Created con el turno creado
         end
