@@ -1,16 +1,17 @@
 import type { Request, Response } from "express";
 import * as servicio from "../services/turnosService.js";
+import type { DatosTurno } from "../schemas/turnoSchema.js";
 import { AppError } from "../errors/AppError.js";
 import { leerId } from "../utils/leerId.js";
-
-
 
 function turnoNoEncontrado(id: number): AppError {
   return new AppError(404, "NOT_FOUND", `Turno con id ${id} no encontrado`);
 }
 
-function datosInvalidos(): AppError {
-  return new AppError(400, "VALIDATION_ERROR", "Error de validación en los datos ingresados");
+function medicoInexistente(medicoId: number): AppError {
+  return new AppError(404, "MEDICO_NOT_FOUND", `El médico con id ${medicoId} no existe`, [
+    { field: "medicoId", message: `No hay un médico registrado con id ${medicoId}` },
+  ]);
 }
 
 export function obtenerTodos(_req: Request, res: Response): void {
@@ -24,17 +25,17 @@ export function obtenerPorId(req: Request<{ id: string }>, res: Response): void 
   res.status(200).json(turno);
 }
 
-export function crear(req: Request, res: Response): void {
-  const turno = servicio.crearTurno(req.body);
-  if (!turno) throw datosInvalidos();
-  res.status(201).json(turno);
+export function crear(req: Request<Record<string, never>, unknown, DatosTurno>, res: Response): void {
+  const resultado = servicio.crearTurno(req.body);
+  if (!resultado.ok) throw medicoInexistente(req.body.medicoId);
+  res.status(201).json(resultado.turno);
 }
 
-export function actualizar(req: Request<{ id: string }>, res: Response): void {
+export function actualizar(req: Request<{ id: string }, unknown, DatosTurno>, res: Response): void {
   const id = leerId(req);
   const resultado = servicio.actualizarTurno(id, req.body);
   if (!resultado.ok) {
-    throw resultado.error === "no-encontrado" ? turnoNoEncontrado(id) : datosInvalidos();
+    throw resultado.error === "no-encontrado" ? turnoNoEncontrado(id) : medicoInexistente(req.body.medicoId);
   }
   res.status(200).json(resultado.turno);
 }
@@ -45,3 +46,4 @@ export function eliminar(req: Request<{ id: string }>, res: Response): void {
   if (!eliminado) throw turnoNoEncontrado(id);
   res.status(204).send();
 }
+

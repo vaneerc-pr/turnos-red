@@ -1,12 +1,13 @@
 import type { Turno } from "../models/turno.js";
-import { normalizarTurno } from "./normalizador.js";
+import type { DatosTurno } from "../schemas/turnoSchema.js";
 import { busEventos } from "../events/busEventos.js";
+import { obtenerMedico } from "./medicosService.js";
 
 let turnos: Turno[] = [];
 
-export type ResultadoActualizacion =
+export type ResultadoTurno =
   | { ok: true; turno: Turno }
-  | { ok: false; error: "no-encontrado" | "invalido" };
+  | { ok: false; error: "no-encontrado" | "medico-inexistente" };
 
 export function inicializarTurnos(iniciales: Turno[]): void {
   turnos = [...iniciales];
@@ -24,27 +25,21 @@ function siguienteId(): number {
   return turnos.reduce((max, t) => Math.max(max, t.id), 0) + 1;
 }
 
-export function crearTurno(datos: unknown): Turno | null {
-  if (typeof datos !== "object" || datos === null) return null;
-  const turno = normalizarTurno({ ...datos, id: siguienteId() });
-  if (!turno) return null;
+// Los datos ya llegan validados por Zod; aquí solo va la regla de negocio
+export function crearTurno(datos: DatosTurno): ResultadoTurno {
+  if (!obtenerMedico(datos.medicoId)) return { ok: false, error: "medico-inexistente" };
+  const turno: Turno = { id: siguienteId(), ...datos };
   turnos.push(turno);
   busEventos.emit("turno:creado", turno);
-  return turno;
+  return { ok: true, turno };
 }
 
-export function actualizarTurno(
-  id: number,
-  datos: unknown,
-): ResultadoActualizacion {
+// PUT reemplaza el turno completo (excepto el id)
+export function actualizarTurno(id: number, datos: DatosTurno): ResultadoTurno {
   const indice = turnos.findIndex((t) => t.id === id);
   if (indice === -1) return { ok: false, error: "no-encontrado" };
-  if (typeof datos !== "object" || datos === null)
-    return { ok: false, error: "invalido" };
-
-  const actualizado = normalizarTurno({ ...turnos[indice], ...datos, id });
-  if (!actualizado) return { ok: false, error: "invalido" };
-
+  if (!obtenerMedico(datos.medicoId)) return { ok: false, error: "medico-inexistente" };
+  const actualizado: Turno = { id, ...datos };
   turnos[indice] = actualizado;
   busEventos.emit("turno:actualizado", actualizado);
   return { ok: true, turno: actualizado };
@@ -58,3 +53,5 @@ export function eliminarTurno(id: number): Turno | null {
   busEventos.emit("turno:eliminado", eliminado);
   return eliminado;
 }
+
+
