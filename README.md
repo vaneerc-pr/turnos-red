@@ -77,6 +77,8 @@ Toda la arquitectura en capas esta nombrada en ingles (`routes`, `controllers`, 
 
 ```
 turnos-red/
+|-- docs/
+|   |-- adr/                        # Registros de decisiones de arquitectura (ADRs)
 |-- data/
 |   |-- turnos.json                 # Datos crudos enviados por las sedes
 |-- public/
@@ -244,6 +246,15 @@ sequenceDiagram
         end
     end
 ```
+
+## Decisiones de arquitectura (ADRs)
+
+Las decisiones tecnicas relevantes se registran en [`docs/adr`](docs/adr) como *Architecture Decision Records*:
+
+| ADR | Decision | Estado |
+|-----|----------|--------|
+| [ADR-001](docs/adr/ADR-001-uso-de-openapi.md) | Uso de OpenAPI (Swagger) como estandar de documentacion del contrato de la API | Aceptado |
+| [ADR-002](docs/adr/ADR-002-adopcion-futura-de-jwt.md) | Adopcion futura de JWT para autenticacion y autorizacion | Propuesto |
 
 ## Formato estandar de errores
 
