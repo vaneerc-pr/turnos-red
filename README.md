@@ -4,7 +4,7 @@ Prototipo de backend para centralizar la gestion de turnos medicos de varios cen
 
 El servidor lee los registros que envian las sedes en formato JSON (con formatos inconsistentes), los **normaliza**, y expone una **API RESTful** con Express para gestionar **turnos** y **medicos**. Toda entrada de datos se valida con **Zod**, todos los errores responden con un **formato JSON estandar**, y los cambios en los turnos se **notifican en tiempo real** mediante Socket.IO.
 
-Proyecto desarrollado para las Actividades 1 y 2 del ramo *Integraciones Web*.
+Proyecto desarrollado para las Actividades 1, 2 y 3 del ramo *Integraciones Web*.
 
 ## Tecnologias
 
@@ -15,6 +15,8 @@ Proyecto desarrollado para las Actividades 1 y 2 del ramo *Integraciones Web*.
 - EventEmitter de Node.js (bus de eventos internos)
 - ESLint + Prettier (calidad y formato de codigo)
 - Postman (pruebas automatizadas y Mock Server)
+- Swagger/OpenAPI 3.0 con swagger-jsdoc y swagger-ui-express (documentacion interactiva)
+- Mermaid (diagramas de arquitectura como codigo)
 
 ## Requisitos previos
 
@@ -80,6 +82,8 @@ turnos-red/
 |-- public/
 |   |-- index.html                  # Cliente web de prueba (Socket.IO)
 |-- src/
+|   |-- config/
+|   |   |-- swagger.ts              # Definicion OpenAPI y esquemas reutilizables (Swagger)
 |   |-- controllers/
 |   |   |-- turnosController.ts     # Traduce el resultado del servicio a una respuesta HTTP
 |   |   |-- medicosController.ts
@@ -97,7 +101,7 @@ turnos-red/
 |   |-- realtime/
 |   |   |-- socket.ts               # Puente entre el bus de eventos y Socket.IO
 |   |-- routes/
-|   |   |-- turnosRoutes.ts         # Asocia metodo + ruta + validacion + controlador
+|   |   |-- turnosRoutes.ts         # Metodo + ruta + validacion + controlador, con anotaciones @openapi
 |   |   |-- medicosRoutes.ts
 |   |-- schemas/
 |   |   |-- especialidad.ts         # Especialidades validas del sistema (enum)
@@ -143,6 +147,103 @@ Cada capa tiene una sola responsabilidad:
 - **services**: aplican la logica de negocio (por ejemplo, verificar que el medico de un turno exista) y los filtros. No conocen HTTP.
 - **errorHandler**: convierte cualquier error en una respuesta con formato estandar.
 
+## Arquitectura
+
+Los diagramas estan escritos en [Mermaid](https://mermaid.js.org/) dentro de este README (*Docs as Code*): GitHub los renderiza automaticamente y se versionan junto con el codigo.
+
+### Diagrama de componentes
+
+Representa la arquitectura real de la aplicacion. Los datos se mantienen **en memoria**: `data/turnos.json` solo se lee al iniciar el servidor para la carga inicial de los turnos de las sedes, y los medicos iniciales estan definidos en `medicosService`. Ninguna operacion de la API escribe en archivos JSON (ver [Limitaciones conocidas](#limitaciones-conocidas)).
+
+```mermaid
+flowchart LR
+    subgraph Clientes
+        HTTP["Cliente HTTP<br/>Postman / navegador"]
+        WEB["Clientes WebSocket<br/>public/index.html"]
+    end
+
+    DISCO[("data/turnos.json<br/>registros de las sedes")]
+
+    subgraph Servidor["Servidor TurnosRed - Node.js + Express"]
+        CARGA["lectorTurnos + normalizador<br/>src/services - solo al iniciar"]
+        APP["app.ts<br/>express.json"]
+        DOCS["Swagger UI<br/>/api-docs"]
+        ROUTES["Rutas Express<br/>src/routes"]
+        VALIDATE["Middleware validate + schemas Zod<br/>src/middlewares - src/schemas"]
+        CTRL["Controladores<br/>src/controllers"]
+        SERV["Servicios<br/>src/services"]
+        MEM[("Persistencia en memoria<br/>arreglos turnos y medicos")]
+        ERR["errorHandler<br/>src/middlewares"]
+        BUS["busEventos - EventEmitter<br/>src/events"]
+        LOG["registroConsola<br/>src/events"]
+        SIO["Servidor Socket.IO<br/>src/realtime"]
+    end
+
+    DISCO -->|"lectura al iniciar"| CARGA
+    CARGA -->|"carga inicial de turnos"| MEM
+    HTTP -->|"solicitud HTTP REST"| APP
+    HTTP -.->|"consulta el contrato"| DOCS
+    APP --> ROUTES
+    ROUTES -->|"POST y PUT"| VALIDATE
+    VALIDATE -->|"body válido"| CTRL
+    ROUTES -->|"GET y DELETE"| CTRL
+    CTRL --> SERV
+    SERV -->|"lee y modifica"| MEM
+    CTRL -->|"respuesta 200 / 201 / 204"| HTTP
+    VALIDATE -.->|"ZodError"| ERR
+    CTRL -.->|"AppError o ZodError de filtros"| ERR
+    ERR -->|"error estándar 400 / 404 / 500"| HTTP
+    SERV -->|"turno:creado / actualizado / eliminado"| BUS
+    BUS --> LOG
+    BUS --> SIO
+    SIO -->|"turno:nuevo / actualizado / eliminado"| WEB
+```
+
+### Diagrama de secuencia: `POST /turnos`
+
+Flujo completo de creacion de un turno, incluyendo los casos de error 400 (validacion de Zod) y 404 (medico inexistente).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor C as Cliente HTTP (Postman)
+    participant R as turnosRoutes
+    participant V as validate + turnoSchema (Zod)
+    participant CT as turnosController
+    participant S as turnosService
+    participant M as Memoria (arreglo turnos)
+    participant B as busEventos (EventEmitter)
+    participant IO as Servidor Socket.IO
+    participant W as Clientes WebSocket
+    participant E as errorHandler
+
+    C->>R: POST /turnos con body JSON
+    R->>V: validate(turnoSchema)
+    V->>V: safeParse(req.body)
+    alt Body inválido
+        V->>E: next(ZodError)
+        E-->>C: 400 Bad Request - VALIDATION_ERROR con details por campo
+    else Body válido
+        V->>CT: next() con req.body limpio (trim, defaults)
+        CT->>S: crearTurno(datos)
+        S->>S: obtenerMedico(medicoId)
+        alt Médico inexistente
+            S-->>CT: ok false, medico-inexistente
+            CT->>E: throw AppError(404)
+            E-->>C: 404 Not Found - MEDICO_NOT_FOUND
+        else Médico existe
+            S->>M: turnos.push(turno) con id nuevo
+            Note over M: Sin escritura en disco - el turno se pierde al reiniciar
+            S->>B: emit("turno:creado", turno)
+            B->>IO: listener de turno:creado
+            IO-->>W: io.emit("turno:nuevo", turno)
+            Note over B,IO: emit es síncrono - el evento se envía antes de responder al cliente HTTP
+            S-->>CT: ok true, turno
+            CT-->>C: 201 Created con el turno creado
+        end
+    end
+```
+
 ## Formato estandar de errores
 
 Todas las respuestas fallidas de la API tienen la misma estructura:
@@ -171,6 +272,8 @@ Todas las respuestas fallidas de la API tienen la misma estructura:
 `details` indica exactamente que campo fallo y por que. Si no aplica, es un arreglo vacio.
 
 ## Endpoints
+
+La documentacion interactiva completa (parametros, cuerpos, respuestas y esquemas) esta disponible con el servidor en ejecucion en **`http://localhost:3000/api-docs`**, y la especificacion OpenAPI en JSON en `/api-docs.json`.
 
 ### Turnos
 
