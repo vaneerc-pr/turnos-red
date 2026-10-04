@@ -1,7 +1,5 @@
 import type { Medico } from "../models/medico.js";
-
-// Lo que envía el cliente al crear o actualizar: todo menos el id
-export type DatosMedico = Omit<Medico, "id">;
+import type { DatosMedico } from "../schemas/medicoSchema.js";
 
 // Datos iniciales en memoria (se reinician al reiniciar el servidor)
 const medicos: Medico[] = [

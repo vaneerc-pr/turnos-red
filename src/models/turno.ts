@@ -18,6 +18,7 @@ export interface Turno {
   especialidad: string;
   fecha: string; // formato AAAA-MM-DD
   hora: string; // formato HH:MM
+  medicoId?: number;
   confirmado: boolean;
   observaciones?: string;
 }

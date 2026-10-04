@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import * as servicio from "../services/medicosService.js";
-import type { DatosMedico } from "../services/medicosService.js";
+import type { DatosMedico } from "../schemas/medicoSchema.js";
 import { AppError } from "../errors/AppError.js";
 import { leerId } from "../utils/leerId.js";
 

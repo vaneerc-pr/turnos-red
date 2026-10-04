@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "../errors/AppError.js";
+import { ZodError } from "zod";
+
 
 // Rutas que no existen → 404 con el formato estándar
 export function notFoundHandler(req: Request, _res: Response, next: NextFunction): void {
@@ -25,7 +27,22 @@ export function errorHandler(err: unknown, _req: Request, res: Response, next: N
     return;
   }
 
-  // 2. JSON mal escrito en el body (lo detecta express.json())
+    // 2. Errores de validación de Zod → 400 con el detalle de cada campo
+  if (err instanceof ZodError) {
+    res.status(400).json({
+      status: 400,
+      message: "Error de validación en los datos ingresados",
+      code: "VALIDATION_ERROR",
+      details: err.issues.map((issue) => ({
+        field: issue.path.length > 0 ? issue.path.map(String).join(".") : "body",
+        message: issue.path.length > 0 ? issue.message : "El cuerpo de la solicitud debe ser un objeto JSON",
+      })),
+    });
+    return;
+  }
+
+
+  // 3. JSON mal escrito en el body (lo detecta express.json())
   if (err instanceof SyntaxError && "body" in err) {
     res.status(400).json({
       status: 400,
@@ -36,7 +53,7 @@ export function errorHandler(err: unknown, _req: Request, res: Response, next: N
     return;
   }
 
-  // 3. Cualquier otra cosa es un fallo nuestro → 500, sin exponer detalles internos
+  // 4. Cualquier otra cosa es un fallo nuestro → 500, sin exponer detalles internos
   console.error(err);
   res.status(500).json({
     status: 500,
