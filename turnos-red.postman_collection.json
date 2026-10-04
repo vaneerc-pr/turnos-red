@@ -1,0 +1,2090 @@
+{
+	"info": {
+		"_postman_id": "951ba65b-ddd8-41bd-885c-4be177c2e122",
+		"name": "TurnosRed API",
+		"description": "Colección de pruebas de la API TurnosRed (Actividad 2 - Integraciones Web).\n\nOrden de ejecución: 1. Médicos → 2. Turnos → 3. Limpieza. Las solicitudes encadenan los ids creados mediante las variables de entorno medicoId y turnoId.\n\nEl header x-mock-response-code solo lo usa el Mock Server para elegir qué ejemplo devolver; la API real lo ignora.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42759293"
+	},
+	"item": [
+		{
+			"name": "1. Médicos",
+			"item": [
+				{
+					"name": "Listar médicos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const schemaMedico = JSON.parse(pm.collectionVariables.get(\"schemaMedico\"));",
+									"pm.test(\"Devuelve un arreglo de médicos con esquema válido\", function () {",
+									"    const datos = pm.response.json();",
+									"    pm.expect(datos).to.be.an(\"array\").that.is.not.empty;",
+									"    pm.response.to.have.jsonSchema({ type: \"array\", items: schemaMedico });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medicos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/medicos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 1,\n    \"nombre\": \"Laura Gómez\",\n    \"especialidad\": \"Pediatría\",\n    \"disponible\": true\n  },\n  {\n    \"id\": 2,\n    \"nombre\": \"Martín Rojas\",\n    \"especialidad\": \"Odontología\",\n    \"disponible\": true\n  },\n  {\n    \"id\": 3,\n    \"nombre\": \"Sofía Herrera\",\n    \"especialidad\": \"Clínica médica\",\n    \"disponible\": false\n  },\n  {\n    \"id\": 4,\n    \"nombre\": \"Andrés Paredes\",\n    \"especialidad\": \"Nutrición\",\n    \"disponible\": true\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Crear médico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"const schemaMedico = JSON.parse(pm.collectionVariables.get(\"schemaMedico\"));",
+									"pm.test(\"El médico creado cumple el esquema\", function () {",
+									"    pm.response.to.have.jsonSchema(schemaMedico);",
+									"});",
+									"pm.test(\"Guarda los datos enviados\", function () {",
+									"    const m = pm.response.json();",
+									"    pm.expect(m.nombre).to.eql(\"Paula Rivas\");",
+									"    pm.expect(m.especialidad).to.eql(\"Pediatría\");",
+									"    pm.expect(m.disponible).to.eql(true);",
+									"});",
+									"// Guarda el id para las siguientes solicitudes",
+									"pm.environment.set(\"medicoId\", pm.response.json().id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-code",
+								"value": "201",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"  Paula Rivas  \",\n    \"especialidad\": \"Pediatría\",\n    \"disponible\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/medicos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-code",
+										"value": "201",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nombre\": \"  Paula Rivas  \",\n    \"especialidad\": \"Pediatría\",\n    \"disponible\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/medicos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 5,\n  \"nombre\": \"Paula Rivas\",\n  \"especialidad\": \"Pediatría\",\n  \"disponible\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Obtener médico por id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const schemaMedico = JSON.parse(pm.collectionVariables.get(\"schemaMedico\"));",
+									"pm.test(\"Devuelve el médico creado\", function () {",
+									"    pm.response.to.have.jsonSchema(schemaMedico);",
+									"    pm.expect(pm.response.json().id).to.eql(Number(pm.environment.get(\"medicoId\")));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medicos/{{medicoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos",
+								"{{medicoId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/medicos/5",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos",
+										"5"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 5,\n  \"nombre\": \"Paula Rivas\",\n  \"especialidad\": \"Pediatría\",\n  \"disponible\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Filtrar médicos por especialidad y disponible",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Todos los resultados son de Odontología y están disponibles\", function () {",
+									"    const datos = pm.response.json();",
+									"    pm.expect(datos).to.be.an(\"array\").that.is.not.empty;",
+									"    datos.forEach(m => {",
+									"        pm.expect(m.especialidad).to.eql(\"Odontología\");",
+									"        pm.expect(m.disponible).to.eql(true);",
+									"    });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medicos?especialidad=Odontologia&disponible=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos"
+							],
+							"query": [
+								{
+									"key": "especialidad",
+									"value": "Odontologia"
+								},
+								{
+									"key": "disponible",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/medicos?especialidad=Odontologia&disponible=true",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos"
+									],
+									"query": [
+										{
+											"key": "especialidad",
+											"value": "Odontologia"
+										},
+										{
+											"key": "disponible",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 2,\n    \"nombre\": \"Martín Rojas\",\n    \"especialidad\": \"Odontología\",\n    \"disponible\": true\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Actualizar médico (PUT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const schemaMedico = JSON.parse(pm.collectionVariables.get(\"schemaMedico\"));",
+									"pm.test(\"El médico quedó no disponible\", function () {",
+									"    pm.response.to.have.jsonSchema(schemaMedico);",
+									"    pm.expect(pm.response.json().disponible).to.eql(false);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Paula Rivas\",\n    \"especialidad\": \"Pediatría\",\n    \"disponible\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/medicos/{{medicoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos",
+								"{{medicoId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nombre\": \"Paula Rivas\",\n    \"especialidad\": \"Pediatría\",\n    \"disponible\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/medicos/5",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos",
+										"5"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 5,\n  \"nombre\": \"Paula Rivas\",\n  \"especialidad\": \"Pediatría\",\n  \"disponible\": false\n}"
+						}
+					]
+				},
+				{
+					"name": "Crear médico inválido (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"code = VALIDATION_ERROR\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"VALIDATION_ERROR\");",
+									"});",
+									"pm.test(\"details indica los campos que fallaron: nombre, especialidad, disponible\", function () {",
+									"    const campos = pm.response.json().details.map(d => d.field);",
+									"    pm.expect(campos).to.include.members([\"nombre\", \"especialidad\", \"disponible\"]);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-code",
+								"value": "400",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"   \",\n    \"especialidad\": \"PEDIATRÍA\",\n    \"disponible\": \"si\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/medicos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-code",
+										"value": "400",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"nombre\": \"   \",\n    \"especialidad\": \"PEDIATRÍA\",\n    \"disponible\": \"si\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/medicos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 400,\n  \"message\": \"Error de validación en los datos ingresados\",\n  \"code\": \"VALIDATION_ERROR\",\n  \"details\": [\n    {\n      \"field\": \"nombre\",\n      \"message\": \"El nombre no puede estar vacío\"\n    },\n    {\n      \"field\": \"especialidad\",\n      \"message\": \"La especialidad debe ser una de: Clínica médica, Pediatría, Odontología, Nutrición\"\n    },\n    {\n      \"field\": \"disponible\",\n      \"message\": \"disponible debe ser true o false\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Obtener médico inexistente (404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"code = NOT_FOUND\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"NOT_FOUND\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "404",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medicos/99999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos",
+								"99999"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "404",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/medicos/99999",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos",
+										"99999"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 404,\n  \"message\": \"Médico con id 99999 no encontrado\",\n  \"code\": \"NOT_FOUND\",\n  \"details\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Filtro de médicos inválido (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"code = VALIDATION_ERROR\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"VALIDATION_ERROR\");",
+									"});",
+									"pm.test(\"details indica los campos que fallaron: disponible\", function () {",
+									"    const campos = pm.response.json().details.map(d => d.field);",
+									"    pm.expect(campos).to.include.members([\"disponible\"]);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "400",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medicos?disponible=si",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos"
+							],
+							"query": [
+								{
+									"key": "disponible",
+									"value": "si"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "400",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/medicos?disponible=si",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos"
+									],
+									"query": [
+										{
+											"key": "disponible",
+											"value": "si"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 400,\n  \"message\": \"Error de validación en los datos ingresados\",\n  \"code\": \"VALIDATION_ERROR\",\n  \"details\": [\n    {\n      \"field\": \"disponible\",\n      \"message\": \"disponible debe ser true o false\"\n    }\n  ]\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "2. Turnos",
+			"item": [
+				{
+					"name": "Listar turnos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const schemaTurno = JSON.parse(pm.collectionVariables.get(\"schemaTurno\"));",
+									"pm.test(\"Devuelve un arreglo de turnos con esquema válido\", function () {",
+									"    const datos = pm.response.json();",
+									"    pm.expect(datos).to.be.an(\"array\");",
+									"    pm.response.to.have.jsonSchema({ type: \"array\", items: schemaTurno });",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 102,\n    \"paciente\": \"Carlos Ruiz\",\n    \"documento\": \"31654210\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"10:00\",\n    \"confirmado\": true\n  },\n  {\n    \"id\": 103,\n    \"paciente\": \"Ana Torres\",\n    \"documento\": \"28555123\",\n    \"especialidad\": \"Odontología\",\n    \"fecha\": \"2026-08-15\",\n    \"hora\": \"09:30\",\n    \"confirmado\": true\n  },\n  {\n    \"id\": 104,\n    \"paciente\": \"Lucía Fernández\",\n    \"documento\": \"30111222\",\n    \"especialidad\": \"Clínica médica\",\n    \"fecha\": \"2026-09-18\",\n    \"hora\": \"16:00\",\n    \"confirmado\": false,\n    \"observaciones\": \"Trae estudios previos\"\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Crear turno",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"const schemaTurno = JSON.parse(pm.collectionVariables.get(\"schemaTurno\"));",
+									"pm.test(\"El turno creado cumple el esquema\", function () {",
+									"    pm.response.to.have.jsonSchema(schemaTurno);",
+									"});",
+									"pm.test(\"Queda vinculado al médico y confirmado = false por defecto\", function () {",
+									"    const t = pm.response.json();",
+									"    pm.expect(t.medicoId).to.eql(Number(pm.environment.get(\"medicoId\")));",
+									"    pm.expect(t.confirmado).to.eql(false);",
+									"});",
+									"// Guarda el id para las siguientes solicitudes",
+									"pm.environment.set(\"turnoId\", pm.response.json().id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-code",
+								"value": "201",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"paciente\": \"{{$randomFullName}}\",\n    \"documento\": \"31.654.210-K\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"10:00\",\n    \"medicoId\": {{medicoId}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/turnos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos"
+							]
+						},
+						"description": "El paciente usa la variable dinámica {{$randomFullName}} de Postman: genera un nombre distinto en cada ejecución."
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-code",
+										"value": "201",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"paciente\": \"Rogelio Rempel\",\n    \"documento\": \"31.654.210-K\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"10:00\",\n    \"medicoId\": 5\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turnos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 105,\n  \"paciente\": \"Rogelio Rempel\",\n  \"documento\": \"31.654.210-K\",\n  \"especialidad\": \"Pediatría\",\n  \"fecha\": \"2026-08-14\",\n  \"hora\": \"10:00\",\n  \"medicoId\": 5,\n  \"confirmado\": false\n}"
+						}
+					]
+				},
+				{
+					"name": "Obtener turno por id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const schemaTurno = JSON.parse(pm.collectionVariables.get(\"schemaTurno\"));",
+									"pm.test(\"Devuelve el turno creado\", function () {",
+									"    pm.response.to.have.jsonSchema(schemaTurno);",
+									"    pm.expect(pm.response.json().id).to.eql(Number(pm.environment.get(\"turnoId\")));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos/{{turnoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos",
+								"{{turnoId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos/105",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos",
+										"105"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 105,\n  \"paciente\": \"Rogelio Rempel\",\n  \"documento\": \"31.654.210-K\",\n  \"especialidad\": \"Pediatría\",\n  \"fecha\": \"2026-08-14\",\n  \"hora\": \"10:00\",\n  \"medicoId\": 5,\n  \"confirmado\": false\n}"
+						}
+					]
+				},
+				{
+					"name": "Filtrar turnos (ejemplo del enunciado)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Todos los resultados son de Pediatría del 2026-08-14\", function () {",
+									"    const datos = pm.response.json();",
+									"    pm.expect(datos).to.be.an(\"array\").that.is.not.empty;",
+									"    datos.forEach(t => {",
+									"        pm.expect(t.especialidad).to.eql(\"Pediatría\");",
+									"        pm.expect(t.fecha).to.eql(\"2026-08-14\");",
+									"    });",
+									"});",
+									"pm.test(\"Incluye el turno creado\", function () {",
+									"    const ids = pm.response.json().map(t => t.id);",
+									"    pm.expect(ids).to.include(Number(pm.environment.get(\"turnoId\")));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos?especialidad=Pediatria&fecha=14/08/2026",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos"
+							],
+							"query": [
+								{
+									"key": "especialidad",
+									"value": "Pediatria"
+								},
+								{
+									"key": "fecha",
+									"value": "14/08/2026"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos?especialidad=Pediatria&fecha=14/08/2026",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos"
+									],
+									"query": [
+										{
+											"key": "especialidad",
+											"value": "Pediatria"
+										},
+										{
+											"key": "fecha",
+											"value": "14/08/2026"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 102,\n    \"paciente\": \"Carlos Ruiz\",\n    \"documento\": \"31654210\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"10:00\",\n    \"confirmado\": true\n  },\n  {\n    \"id\": 105,\n    \"paciente\": \"Rogelio Rempel\",\n    \"documento\": \"31.654.210-K\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"10:00\",\n    \"medicoId\": 5,\n    \"confirmado\": false\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Filtrar turnos por médico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Todos los turnos son del médico consultado\", function () {",
+									"    const datos = pm.response.json();",
+									"    pm.expect(datos).to.be.an(\"array\").that.is.not.empty;",
+									"    datos.forEach(t => pm.expect(t.medicoId).to.eql(Number(pm.environment.get(\"medicoId\"))));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos?medicoId={{medicoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos"
+							],
+							"query": [
+								{
+									"key": "medicoId",
+									"value": "{{medicoId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos?medicoId=5",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos"
+									],
+									"query": [
+										{
+											"key": "medicoId",
+											"value": "5"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 105,\n    \"paciente\": \"Rogelio Rempel\",\n    \"documento\": \"31.654.210-K\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"10:00\",\n    \"medicoId\": 5,\n    \"confirmado\": false\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Actualizar turno (PUT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"const schemaTurno = JSON.parse(pm.collectionVariables.get(\"schemaTurno\"));",
+									"pm.test(\"El turno se reemplazó con los nuevos datos\", function () {",
+									"    pm.response.to.have.jsonSchema(schemaTurno);",
+									"    const t = pm.response.json();",
+									"    pm.expect(t.hora).to.eql(\"11:30\");",
+									"    pm.expect(t.confirmado).to.eql(true);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-code",
+								"value": "200",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"paciente\": \"Carlos Ruiz\",\n    \"documento\": \"31.654.210-K\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"11:30\",\n    \"medicoId\": {{medicoId}},\n    \"confirmado\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/turnos/{{turnoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos",
+								"{{turnoId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-code",
+										"value": "200",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"paciente\": \"Carlos Ruiz\",\n    \"documento\": \"31.654.210-K\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"11:30\",\n    \"medicoId\": 5,\n    \"confirmado\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turnos/105",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos",
+										"105"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 105,\n  \"paciente\": \"Carlos Ruiz\",\n  \"documento\": \"31.654.210-K\",\n  \"especialidad\": \"Pediatría\",\n  \"fecha\": \"2026-08-14\",\n  \"hora\": \"11:30\",\n  \"medicoId\": 5,\n  \"confirmado\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Crear turno inválido (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"code = VALIDATION_ERROR\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"VALIDATION_ERROR\");",
+									"});",
+									"pm.test(\"details indica los campos que fallaron: documento, especialidad, fecha, hora, medicoId\", function () {",
+									"    const campos = pm.response.json().details.map(d => d.field);",
+									"    pm.expect(campos).to.include.members([\"documento\", \"especialidad\", \"fecha\", \"hora\", \"medicoId\"]);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-code",
+								"value": "400",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"paciente\": \"Carlos Ruiz\",\n    \"documento\": 31654210,\n    \"especialidad\": \"PEDIATRÍA\",\n    \"fecha\": \"14/08/2026\",\n    \"hora\": \"10.00\",\n    \"medicoId\": \"2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/turnos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos"
+							]
+						},
+						"description": "Es el registro de ejemplo de la sede (Actividad 1) enviado tal cual: la API debe rechazarlo campo por campo."
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-code",
+										"value": "400",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"paciente\": \"Carlos Ruiz\",\n    \"documento\": 31654210,\n    \"especialidad\": \"PEDIATRÍA\",\n    \"fecha\": \"14/08/2026\",\n    \"hora\": \"10.00\",\n    \"medicoId\": \"2\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turnos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 400,\n  \"message\": \"Error de validación en los datos ingresados\",\n  \"code\": \"VALIDATION_ERROR\",\n  \"details\": [\n    {\n      \"field\": \"documento\",\n      \"message\": \"El documento es obligatorio y debe ser texto\"\n    },\n    {\n      \"field\": \"especialidad\",\n      \"message\": \"La especialidad debe ser una de: Clínica médica, Pediatría, Odontología, Nutrición\"\n    },\n    {\n      \"field\": \"fecha\",\n      \"message\": \"La fecha debe tener formato AAAA-MM-DD y ser válida\"\n    },\n    {\n      \"field\": \"hora\",\n      \"message\": \"La hora debe tener formato HH:MM (00:00 a 23:59)\"\n    },\n    {\n      \"field\": \"medicoId\",\n      \"message\": \"medicoId es obligatorio y debe ser un número\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Crear turno con médico inexistente (404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"code = MEDICO_NOT_FOUND\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"MEDICO_NOT_FOUND\");",
+									"});",
+									"pm.test(\"details indica los campos que fallaron: medicoId\", function () {",
+									"    const campos = pm.response.json().details.map(d => d.field);",
+									"    pm.expect(campos).to.include.members([\"medicoId\"]);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-mock-response-code",
+								"value": "404",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"paciente\": \"Carlos Ruiz\",\n    \"documento\": \"31.654.210-K\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"10:00\",\n    \"medicoId\": 99999\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/turnos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-mock-response-code",
+										"value": "404",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"paciente\": \"Carlos Ruiz\",\n    \"documento\": \"31.654.210-K\",\n    \"especialidad\": \"Pediatría\",\n    \"fecha\": \"2026-08-14\",\n    \"hora\": \"10:00\",\n    \"medicoId\": 99999\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/turnos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 404,\n  \"message\": \"El médico con id 99999 no existe\",\n  \"code\": \"MEDICO_NOT_FOUND\",\n  \"details\": [\n    {\n      \"field\": \"medicoId\",\n      \"message\": \"No hay un médico registrado con id 99999\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Id de turno inválido (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"code = INVALID_ID\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"INVALID_ID\");",
+									"});",
+									"pm.test(\"details indica los campos que fallaron: id\", function () {",
+									"    const campos = pm.response.json().details.map(d => d.field);",
+									"    pm.expect(campos).to.include.members([\"id\"]);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "400",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos/abc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos",
+								"abc"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "400",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos/abc",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos",
+										"abc"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 400,\n  \"message\": \"El id debe ser un número entero positivo\",\n  \"code\": \"INVALID_ID\",\n  \"details\": [\n    {\n      \"field\": \"id\",\n      \"message\": \"Valor recibido: \\\"abc\\\"\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Obtener turno inexistente (404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"code = NOT_FOUND\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"NOT_FOUND\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "404",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos/99999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos",
+								"99999"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "404",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos/99999",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos",
+										"99999"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 404,\n  \"message\": \"Turno con id 99999 no encontrado\",\n  \"code\": \"NOT_FOUND\",\n  \"details\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Filtro de turnos inválido (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 400 Bad Request\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"code = VALIDATION_ERROR\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"VALIDATION_ERROR\");",
+									"});",
+									"pm.test(\"details indica los campos que fallaron: medicoId, fecha\", function () {",
+									"    const campos = pm.response.json().details.map(d => d.field);",
+									"    pm.expect(campos).to.include.members([\"medicoId\", \"fecha\"]);",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "400",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos?medicoId=abc&fecha=31/02/2026",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos"
+							],
+							"query": [
+								{
+									"key": "medicoId",
+									"value": "abc"
+								},
+								{
+									"key": "fecha",
+									"value": "31/02/2026"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "400",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos?medicoId=abc&fecha=31/02/2026",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos"
+									],
+									"query": [
+										{
+											"key": "medicoId",
+											"value": "abc"
+										},
+										{
+											"key": "fecha",
+											"value": "31/02/2026"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 400,\n  \"message\": \"Error de validación en los datos ingresados\",\n  \"code\": \"VALIDATION_ERROR\",\n  \"details\": [\n    {\n      \"field\": \"fecha\",\n      \"message\": \"fecha debe tener formato AAAA-MM-DD o DD/MM/AAAA y ser válida\"\n    },\n    {\n      \"field\": \"medicoId\",\n      \"message\": \"medicoId debe ser un número\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Eliminar turno",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 204 No Content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"pm.test(\"La respuesta no tiene cuerpo\", function () {",
+									"    pm.expect(pm.response.text()).to.be.empty;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "204",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos/{{turnoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos",
+								"{{turnoId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "204 No Content",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "204",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos/105",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos",
+										"105"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Confirmar turno eliminado (404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"code = NOT_FOUND\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"NOT_FOUND\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "404",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/turnos/{{turnoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"turnos",
+								"{{turnoId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "404",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/turnos/105",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"turnos",
+										"105"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 404,\n  \"message\": \"Turno con id 105 no encontrado\",\n  \"code\": \"NOT_FOUND\",\n  \"details\": []\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "3. Limpieza",
+			"item": [
+				{
+					"name": "Eliminar médico",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 204 No Content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"pm.test(\"La respuesta no tiene cuerpo\", function () {",
+									"    pm.expect(pm.response.text()).to.be.empty;",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "204",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medicos/{{medicoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos",
+								"{{medicoId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "204 No Content",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "204",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/medicos/5",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos",
+										"5"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Confirmar médico eliminado (404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test(\"Código de estado 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"code = NOT_FOUND\", function () {",
+									"    pm.expect(pm.response.json().code).to.eql(\"NOT_FOUND\");",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-mock-response-code",
+								"value": "404",
+								"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/medicos/{{medicoId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"medicos",
+								"{{medicoId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-mock-response-code",
+										"value": "404",
+										"description": "Solo lo usa el Mock Server para elegir el ejemplo; la API real lo ignora"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/medicos/5",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"medicos",
+										"5"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"status\": 404,\n  \"message\": \"Médico con id 5 no encontrado\",\n  \"code\": \"NOT_FOUND\",\n  \"details\": []\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Se ejecuta después de CADA solicitud de la colección",
+					"if (pm.response.code >= 400) {",
+					"    pm.test(\"Error con formato estándar { status, message, code, details }\", function () {",
+					"        const schemaError = JSON.parse(pm.collectionVariables.get(\"schemaError\"));",
+					"        pm.response.to.have.jsonSchema(schemaError);",
+					"        pm.expect(pm.response.json().status).to.eql(pm.response.code);",
+					"    });",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "schemaMedico",
+			"value": "{\"type\": \"object\", \"required\": [\"id\", \"nombre\", \"especialidad\", \"disponible\"], \"additionalProperties\": false, \"properties\": {\"id\": {\"type\": \"integer\", \"minimum\": 1}, \"nombre\": {\"type\": \"string\", \"minLength\": 1}, \"especialidad\": {\"enum\": [\"Clínica médica\", \"Pediatría\", \"Odontología\", \"Nutrición\"]}, \"disponible\": {\"type\": \"boolean\"}}}"
+		},
+		{
+			"key": "schemaTurno",
+			"value": "{\"type\": \"object\", \"required\": [\"id\", \"paciente\", \"documento\", \"especialidad\", \"fecha\", \"hora\", \"confirmado\"], \"additionalProperties\": false, \"properties\": {\"id\": {\"type\": \"integer\", \"minimum\": 1}, \"paciente\": {\"type\": \"string\", \"minLength\": 1}, \"documento\": {\"type\": \"string\", \"minLength\": 1}, \"especialidad\": {\"enum\": [\"Clínica médica\", \"Pediatría\", \"Odontología\", \"Nutrición\"]}, \"fecha\": {\"type\": \"string\", \"pattern\": \"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"}, \"hora\": {\"type\": \"string\", \"pattern\": \"^\\\\d{2}:\\\\d{2}$\"}, \"medicoId\": {\"type\": \"integer\", \"minimum\": 1}, \"confirmado\": {\"type\": \"boolean\"}, \"observaciones\": {\"type\": \"string\"}}}"
+		},
+		{
+			"key": "schemaError",
+			"value": "{\"type\": \"object\", \"required\": [\"status\", \"message\", \"code\", \"details\"], \"additionalProperties\": false, \"properties\": {\"status\": {\"type\": \"integer\"}, \"message\": {\"type\": \"string\"}, \"code\": {\"type\": \"string\"}, \"details\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"required\": [\"field\", \"message\"], \"properties\": {\"field\": {\"type\": \"string\"}, \"message\": {\"type\": \"string\"}}}}}}"
+		}
+	]
+}
