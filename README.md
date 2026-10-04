@@ -158,7 +158,6 @@ Los diagramas estan escritos en [Mermaid](https://mermaid.js.org/) dentro de est
 Representa la arquitectura real de la aplicacion. Los datos se mantienen **en memoria**: `data/turnos.json` solo se lee al iniciar el servidor para la carga inicial de los turnos de las sedes, y los medicos iniciales estan definidos en `medicosService`. Ninguna operacion de la API escribe en archivos JSON (ver [Limitaciones conocidas](#limitaciones-conocidas)).
 
 ```mermaid
-%%{init: {"flowchart": {"htmlLabels": false}} }%%
 flowchart TB
     subgraph Clientes
         HTTP["Cliente HTTP<br/>Postman / navegador"]
