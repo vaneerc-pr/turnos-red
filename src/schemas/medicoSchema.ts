@@ -13,4 +13,15 @@ export const medicoSchema = z.object({
 // Tipo TypeScript generado automáticamente desde el schema
 export type DatosMedico = z.infer<typeof medicoSchema>;
 
+// Filtros de GET /medicos (todos opcionales)
+export const filtrosMedicoSchema = z.object({
+  especialidad: z.string().trim().min(1, "especialidad no puede estar vacía").optional(),
+  disponible: z
+    .enum(["true", "false"], { message: "disponible debe ser true o false" })
+    .transform((valor) => valor === "true")
+    .optional(),
+});
+
+export type FiltrosMedico = z.infer<typeof filtrosMedicoSchema>;
+
 

@@ -25,3 +25,27 @@ export const turnoSchema = z.object({
 
 export type DatosTurno = z.infer<typeof turnoSchema>;
 
+
+// "14/08/2026" → "2026-08-14"; si ya viene en AAAA-MM-DD, la deja igual
+function aFechaIso(valor: string): string {
+  const partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(valor);
+  return partes ? `${partes[3]}-${partes[2]}-${partes[1]}` : valor;
+}
+
+// Filtros de GET /turnos (todos opcionales; llegan como texto desde la URL)
+export const filtrosTurnoSchema = z.object({
+  especialidad: z.string().trim().min(1, "especialidad no puede estar vacía").optional(),
+  fecha: z
+    .string()
+    .trim()
+    .transform(aFechaIso)
+    .pipe(z.iso.date({ message: "fecha debe tener formato AAAA-MM-DD o DD/MM/AAAA y ser válida" }))
+    .optional(),
+  medicoId: z.coerce
+    .number({ message: "medicoId debe ser un número" })
+    .int("medicoId debe ser un número entero")
+    .positive("medicoId debe ser positivo")
+    .optional(),
+});
+
+export type FiltrosTurno = z.infer<typeof filtrosTurnoSchema>;

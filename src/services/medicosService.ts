@@ -1,5 +1,6 @@
 import type { Medico } from "../models/medico.js";
-import type { DatosMedico } from "../schemas/medicoSchema.js";
+import type { DatosMedico, FiltrosMedico } from "../schemas/medicoSchema.js";
+import { normalizarTexto } from "../utils/normalizarTexto.js";
 
 // Datos iniciales en memoria (se reinician al reiniciar el servidor)
 const medicos: Medico[] = [
@@ -13,9 +14,15 @@ function siguienteId(): number {
   return medicos.reduce((max, m) => Math.max(max, m.id), 0) + 1;
 }
 
-export function listarMedicos(): Medico[] {
-  return medicos;
+export function listarMedicos(filtros: FiltrosMedico = {}): Medico[] {
+  const { especialidad, disponible } = filtros;
+  return medicos.filter(
+    (m) =>
+      (especialidad === undefined || normalizarTexto(m.especialidad) === normalizarTexto(especialidad)) &&
+      (disponible === undefined || m.disponible === disponible),
+  );
 }
+
 
 export function obtenerMedico(id: number): Medico | undefined {
   return medicos.find((m) => m.id === id);

@@ -3,13 +3,15 @@ import * as servicio from "../services/medicosService.js";
 import type { DatosMedico } from "../schemas/medicoSchema.js";
 import { AppError } from "../errors/AppError.js";
 import { leerId } from "../utils/leerId.js";
+import { filtrosMedicoSchema } from "../schemas/medicoSchema.js";
 
 function medicoNoEncontrado(id: number): AppError {
   return new AppError(404, "NOT_FOUND", `Médico con id ${id} no encontrado`);
 }
 
-export function obtenerTodos(_req: Request, res: Response): void {
-  res.status(200).json(servicio.listarMedicos());
+export function obtenerTodos(req: Request, res: Response): void {
+  const filtros = filtrosMedicoSchema.parse(req.query);
+  res.status(200).json(servicio.listarMedicos(filtros));
 }
 
 export function obtenerPorId(req: Request<{ id: string }>, res: Response): void {

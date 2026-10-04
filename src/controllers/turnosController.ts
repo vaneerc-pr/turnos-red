@@ -3,6 +3,7 @@ import * as servicio from "../services/turnosService.js";
 import type { DatosTurno } from "../schemas/turnoSchema.js";
 import { AppError } from "../errors/AppError.js";
 import { leerId } from "../utils/leerId.js";
+import { filtrosTurnoSchema } from "../schemas/turnoSchema.js";
 
 function turnoNoEncontrado(id: number): AppError {
   return new AppError(404, "NOT_FOUND", `Turno con id ${id} no encontrado`);
@@ -14,8 +15,9 @@ function medicoInexistente(medicoId: number): AppError {
   ]);
 }
 
-export function obtenerTodos(_req: Request, res: Response): void {
-  res.status(200).json(servicio.listarTurnos());
+export function obtenerTodos(req: Request, res: Response): void {
+  const filtros = filtrosTurnoSchema.parse(req.query);
+  res.status(200).json(servicio.listarTurnos(filtros));
 }
 
 export function obtenerPorId(req: Request<{ id: string }>, res: Response): void {

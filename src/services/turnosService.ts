@@ -1,7 +1,8 @@
 import type { Turno } from "../models/turno.js";
-import type { DatosTurno } from "../schemas/turnoSchema.js";
+import type { DatosTurno, FiltrosTurno } from "../schemas/turnoSchema.js";
 import { busEventos } from "../events/busEventos.js";
 import { obtenerMedico } from "./medicosService.js";
+import { normalizarTexto } from "../utils/normalizarTexto.js";
 
 let turnos: Turno[] = [];
 
@@ -13,8 +14,14 @@ export function inicializarTurnos(iniciales: Turno[]): void {
   turnos = [...iniciales];
 }
 
-export function listarTurnos(): Turno[] {
-  return turnos;
+export function listarTurnos(filtros: FiltrosTurno = {}): Turno[] {
+  const { especialidad, fecha, medicoId } = filtros;
+  return turnos.filter(
+    (t) =>
+      (especialidad === undefined || normalizarTexto(t.especialidad) === normalizarTexto(especialidad)) &&
+      (fecha === undefined || t.fecha === fecha) &&
+      (medicoId === undefined || t.medicoId === medicoId),
+  );
 }
 
 export function obtenerTurno(id: number): Turno | undefined {
